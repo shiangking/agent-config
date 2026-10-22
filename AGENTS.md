@@ -11,6 +11,7 @@ This file is loaded as workspace context. Follow it unless the user explicitly o
 - All approved UI templates live in **https://github.com/shiangking/ui-templates** (`registry.json` is the index).
 - Every product's frontend starts from an approved template's **actual source files** — never generated from scratch, never from LLM screenshot interpretation.
 - **Adapt, don't reinvent:** preserve design tokens, components, navigation, responsive + accessibility behavior. Keep modifications targeted and explainable. Avoid CSS rewrites and replacing polished template components with generic AI-generated equivalents.
+- **Quality bar is human:** templates enter the library only with the user's approval. Agent-authored page templates must be shown to the user (live render + screenshots) and explicitly approved BEFORE being pushed to ui-templates. (Two early agent-generated templates were removed on 2026-10-22 for failing this bar.)
 - Import templates via `tools/import_template.sh <id> [dest]` in that repo (static fetch only — **never execute template code** outside an isolated environment).
 - **No vision dependency:** visual/screenshot review is optional. When skipped, record `optional-not-performed` — NEVER mark it passed. Never block delivery on missing vision capability. Existing technical, security, browser, and usability gates stay enforced.
 - **If no approved template fits the product, request one from the user — do not invent a new visual direction.**
@@ -33,7 +34,7 @@ This file is loaded as workspace context. Follow it unless the user explicitly o
 
 ## Git & GitHub conventions
 - **NEVER push to `main`/`master`.** Always: feature branch → commit → push → PR → send the user the PR link.
-  (Exception: seeding a brand-new repo the agent itself just created, with user consent.)
+  (Exception: seeding brand-new repos the agent itself just created — ui-templates, agent-config — with user consent.)
 - One logical change per commit; keep PR title/description in sync with actual scope.
 - Credentials: never in chat, prompts, logs, reports, or commits. Use the secure secret-request flow.
 - Durable assets (templates, conventions, configs) live in GitHub repos, not on machines — every machine fetches from raw.githubusercontent.com.

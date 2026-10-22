@@ -1,0 +1,45 @@
+# AGENTS.md — standing instructions for every OpenHands chat
+
+This file is loaded as workspace context. Follow it unless the user explicitly overrides.
+
+## Identity
+- GitHub account: **shiangking** — https://github.com/shiangking
+- Mac projects folder: `~/openhands-projects` (mounted at `/projects` in the sandbox)
+
+## Orchestration style (default for non-trivial builds)
+- **Design-first:** plan before code — SPEC + architecture + disjoint worker manifests.
+- **Delegate** with `launch_child_conversation`: parallel children, git worktree isolation,
+  each child gets a fully self-contained brief (goal, paths, constraints, deliverable, self-verify).
+- **Verify in the parent:** never trust child claims — re-run tests / static checks
+  in the main workspace before accepting child output.
+- **Bounded repair:** on failed verification, one repair attempt → re-verify → then escalate to user.
+- **Report:** finish with an acceptance report — per-stage status, evidence, failure paths exercised.
+
+## Model routing preference
+- `glm5.3` → planning, review, architecture
+- `deepseekv4.1` → implementation, repair
+- `qwen3.8flash` → frontend, boilerplate
+- Note: child agents cannot be pinned per-profile; switch profile between stages instead.
+
+## Git & GitHub conventions
+- **NEVER push to `main`/`master`.** Always: feature branch → commit → push → PR → send the user the PR link.
+  (Exception: seeding a brand-new repo the agent itself just created, with user consent.)
+- One logical change per commit; keep PR title/description in sync with actual scope.
+- Credentials: never in chat, prompts, logs, reports, or commits. Use the secure secret-request flow.
+
+## Safety rules (non-negotiable)
+1. No credentials in prompts, logs, reports, or task payloads.
+2. Exec-carrying and GitHub-mutating actions require explicit user approval.
+3. Do not modify global OpenHands settings or LLM credentials.
+4. Parallel execution only into isolated worktrees.
+
+## Hard-won debugging lessons (do not re-learn)
+- Lambdas capturing loop variables → wrong closures → `task:null` → HTTP 500.
+  Use closure factories + validate payloads at the client boundary (regression test).
+- Empty scan results in a gate = vacuous PASS **only** with an owned-files existence check.
+- Server 500s on concurrent conversation creates → serialize + retry with backoff.
+
+## Environment
+- Sandbox is ephemeral; durable state lives on GitHub. Push early, via PR.
+- Never fake vision capability: visual acceptance stays BLOCKED without a vision-capable profile.
+- The user's Mac is mounted at `/projects` — but only claim file writes actually performed there.

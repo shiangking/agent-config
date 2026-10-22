@@ -1,2 +1,31 @@
 # agent-config
-Global agent conventions, microagents, and AGENTS.md — single source of truth for every OpenHands chat
+
+Global agent conventions for **shiangking** — single source of truth for every OpenHands chat.
+
+## What's in here
+
+| File | Purpose |
+|---|---|
+| `AGENTS.md` | Standing instructions for chats opened in a workspace containing this repo |
+| `microagents/shiangking-conventions.md` | OpenHands microagent — paste into Settings → Microagents (set **Always active**) |
+
+## Install (any machine, any chat)
+
+```bash
+# workspace AGENTS.md
+curl -o ~/openhands-projects/AGENTS.md \
+  https://raw.githubusercontent.com/shiangking/agent-config/main/AGENTS.md
+
+# global microagent (file-based, CLI installs)
+mkdir -p ~/.openhands/microagents
+curl -o ~/.openhands/microagents/shiangking-conventions.md \
+  https://raw.githubusercontent.com/shiangking/agent-config/main/microagents/shiangking-conventions.md
+```
+
+For the GUI (Agent Canvas), copy the body of `microagents/shiangking-conventions.md`
+(without the YAML frontmatter) into **Settings → Microagents → New**, name it
+`shiangking-conventions`, and toggle **Always active**.
+
+## Update policy
+
+This repo is the single source of truth. Edit here, re-fetch everywhere.

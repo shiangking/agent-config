@@ -1,6 +1,6 @@
 ---
 name: shiangking-conventions
-version: 1.3.0
+version: 1.4.0
 description: Standing conventions for working with shiangking — template-first UI, repos, orchestration, safety. Load for any frontend/product work.
 ---
 
@@ -11,6 +11,7 @@ description: Standing conventions for working with shiangking — template-first
 - Mac projects folder: `~/openhands-projects` (mounted at `/projects` in sandbox)
 - **Template library**: https://github.com/shiangking/ui-templates (`registry.json` is the index)
 - **Conventions**: https://github.com/shiangking/agent-config (this file — re-fetch from here, it may be newer than what's loaded)
+- **Product Factory flow & workplan (authoritative)**: `docs/orchestration-flow.md` in agent-config — read before any factory/orchestration work
 
 ## Template-first UI development (NON-NEGOTIABLE)
 1. All approved UI templates live in **shiangking/ui-templates**. Check `registry.json` FIRST — never start a frontend from scratch.
@@ -37,12 +38,17 @@ description: Standing conventions for working with shiangking — template-first
 - Figma: use Figma MCP on community files; watch for cover thumbnails posing as design data (verify node structure).
 - Every addition needs a manifest with origin, license, and (if agent-built) explicit user approval note.
 
-## Orchestration style (default for non-trivial builds)
-- **Design-first**: plan before code — SPEC + architecture + disjoint worker manifests.
-- **Delegate** with `launch_child_conversation`: parallel children, git worktree isolation, self-contained briefs.
-- **Verify in the parent**: re-run tests/static checks before accepting child output.
-- **Bounded repair**: one repair attempt → re-verify → escalate.
-- Model routing: `glm5.3` plan/review/architecture, `deepseekv4.1` implementation/backends, `qwen3.8flash` template adaptation/boilerplate (switch profile between stages; children can't be pinned).
+## Orchestration flow — template-driven Product Factory (v1.4.0)
+- **Authoritative flow & workplan**: `docs/orchestration-flow.md` in agent-config. Read it before any factory work.
+- **Extend, never rebuild** the Phase E Product Factory (`agent-orchestration-poc/`). No new orchestration frameworks; inspect actual modules before changes.
+- **Pipeline:** product request → template selection → template import & analysis → product spec → architecture → component mapping → task dependency compilation → parallel agent implementation → integration → technical / browser / template-conformance / security verification → autonomous repair → final acceptance → GitHub delivery preparation.
+- **Model roles:** `glm5.3` Lead Orchestrator (requirements, template analysis, architecture, component mapping, worker assignment, integration, independent review, acceptance report — coordinates rather than writing all code); `deepseekv4.1` Primary Software Engineer (business logic, APIs, DB, auth, state, frontend-to-functionality wiring, tests, backend repairs — majority of general coding); `qwen3.8flash` Frontend Engineer (template adaptation, component reuse, preserved typography/tokens/layout, responsive + a11y, frontend state, frontend fixes — no generic substitutions without documented reason). Switch profile between stages; children can't be pinned. Reviewers inspect actual changes, never worker claims alone.
+- **Parallel execution:** Git worktrees + explicit file ownership; Qwen frontend / DeepSeek backend by default; adapt for frontend-only products (no unnecessary backend); no concurrent writes to the same files.
+- **Template is the design baseline:** template-conformance manifest (preserved / adapted / new / removed / approved token changes / deviations needing repair); every significant visual change has a documented reason.
+- **Verification:** deterministic + machine-readable (technical, browser, conformance, security gates); unavailable checks never marked passed; vision optional (`optional-not-performed`), never blocks. Browser gates: Playwright journeys, nav/forms/buttons, persistence, states, mobile+desktop, horizontal overflow, console errors, broken assets.
+- **Repair routing:** backend/integration → DeepSeek; frontend/conformance → Qwen; architecture → GLM; security → responsible engineer + independent review. Rerun failed gates + regressions, record evidence, never weaken tests or acceptance criteria. Bounded retries + loop detection.
+- **Approval gates:** new external repos, permission changes, merges into main, public deployment — require explicit user approval.
+- Design-first → verify-in-parent → bounded repair still applies for non-factory builds.
 
 ## Git & GitHub conventions
 - **NEVER push to `main`/`master`.** Feature branch → PR → user link. (Exception: repos the agent created itself — ui-templates, agent-config — user-consented direct pushes.)

@@ -8,6 +8,7 @@ Global agent conventions for **shiangking** — single source of truth for every
 |---|---|
 | `AGENTS.md` | Standing instructions for chats opened in a workspace containing this repo |
 | `microagents/shiangking-conventions.md` | OpenHands microagent — paste into Settings → Microagents (set **Always active**) |
+| `docs/orchestration-flow.md` | **Product Factory — template-driven multi-agent orchestration flow & workplan (authoritative)** |
 
 ## Install (any machine, any chat)
 

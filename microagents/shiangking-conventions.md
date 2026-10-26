@@ -1,6 +1,6 @@
 ---
 name: shiangking-conventions
-version: 1.4.0
+version: 1.5.0
 description: Standing conventions for working with shiangking — template-first UI, repos, orchestration, safety. Load for any frontend/product work.
 ---
 
@@ -11,7 +11,13 @@ description: Standing conventions for working with shiangking — template-first
 - Mac projects folder: `~/openhands-projects` (mounted at `/projects` in sandbox)
 - **Template library**: https://github.com/shiangking/ui-templates (`registry.json` is the index)
 - **Conventions**: https://github.com/shiangking/agent-config (this file — re-fetch from here, it may be newer than what's loaded)
-- **Product Factory flow & workplan (authoritative)**: `docs/orchestration-flow.md` in agent-config — read before any factory/orchestration work
+- **Product Factory flow & workplan**: `docs/orchestration-flow.md` in agent-config — read before any factory/orchestration work
+- **Active model (since 2026-10-26)**: `deepseekv4.1flash` ONLY. See "Active model" below.
+
+## Active model — DeepSeek only (decided 2026-10-26)
+- `deepseekv4.1flash` (`openai/x-test-2` via Soclaas) is the only active coding model and performs every role.
+- **Dormant — never select, never reference in automation:** `glm5.3` (x-test-1), `qwen-3.8flash` (x-test-3), `MiniMax-M3.1Flash` (x-test-4), and the `router` agent profile. Re-activation needs explicit user approval.
+- Do not create new LLM profiles, routers, meta-profiles, or `classify_and_switch_llm` routing.
 
 ## Template-first UI development (NON-NEGOTIABLE)
 1. All approved UI templates live in **shiangking/ui-templates**. Check `registry.json` FIRST — never start a frontend from scratch.
@@ -38,40 +44,18 @@ description: Standing conventions for working with shiangking — template-first
 - Figma: use Figma MCP on community files; watch for cover thumbnails posing as design data (verify node structure).
 - Every addition needs a manifest with origin, license, and (if agent-built) explicit user approval note.
 
-## Orchestration flow — template-driven Product Factory (v1.4.0)
+## Orchestration flow — template-driven Product Factory (v1.5.0)
 - **Authoritative flow & workplan**: `docs/orchestration-flow.md` in agent-config. Read it before any factory work.
 - **Extend, never rebuild** the Phase E Product Factory (`agent-orchestration-poc/`). No new orchestration frameworks; inspect actual modules before changes.
-- **Pipeline:** product request → template selection → template import & analysis → product spec → architecture → component mapping → task dependency compilation → parallel agent implementation → integration → technical / browser / template-conformance / security verification → autonomous repair → final acceptance → GitHub delivery preparation.
-- **Model roles:** `glm5.3` Lead Orchestrator (requirements, template analysis, architecture, component mapping, worker assignment, integration, independent review, acceptance report — coordinates rather than writing all code); `deepseekv4.1` Primary Software Engineer (business logic, APIs, DB, auth, state, frontend-to-functionality wiring, tests, backend repairs — majority of general coding); `qwen3.8flash` Frontend Engineer (template adaptation, component reuse, preserved typography/tokens/layout, responsive + a11y, frontend state, frontend fixes — no generic substitutions without documented reason). Switch profile between stages; children can't be pinned. Reviewers inspect actual changes, never worker claims alone.
-- **Parallel execution:** Git worktrees + explicit file ownership; Qwen frontend / DeepSeek backend by default; adapt for frontend-only products (no unnecessary backend); no concurrent writes to the same files.
+- **Pipeline:** product request → template selection → template import & analysis → product spec → architecture → component mapping → task dependency compilation → implementation → integration → technical / browser / template-conformance / security verification → repair → final acceptance → GitHub delivery preparation.
+- **Model role (DeepSeek only, decided 2026-10-26):** `deepseekv4.1flash` is the ONLY active coding model (`openai/x-test-2` via Soclaas). It performs every role — requirements, architecture, template adaptation, implementation, tests, debugging, review, security, and PR preparation. Do not switch profiles mid-task and do not create new profiles, routers, meta-profiles, or `classify_and_switch_llm` routing. Retained but DORMANT (never select, never reference in automation): `glm5.3` (x-test-1), `qwen-3.8flash` (x-test-3), `MiniMax-M3.1Flash` (x-test-4), and the `router` agent profile. Re-activation requires explicit user approval.
+- **Parallel execution (optional):** Git worktrees + explicit file ownership; no concurrent writes to the same files. Parallelism is a speed choice only — every worker runs DeepSeek.
 - **Template is the design baseline:** template-conformance manifest (preserved / adapted / new / removed / approved token changes / deviations needing repair); every significant visual change has a documented reason.
 - **Verification:** deterministic + machine-readable (technical, browser, conformance, security gates); unavailable checks never marked passed; vision optional (`optional-not-performed`), never blocks. Browser gates: Playwright journeys, nav/forms/buttons, persistence, states, mobile+desktop, horizontal overflow, console errors, broken assets.
-- **Repair routing:** backend/integration → DeepSeek; frontend/conformance → Qwen; architecture → GLM; security → responsible engineer + independent review. Rerun failed gates + regressions, record evidence, never weaken tests or acceptance criteria. Bounded retries + loop detection.
+- **Repair:** classify the defect (backend/integration, frontend/conformance, architecture, security) → fix → rerun failed gates + regressions → record evidence. Never weaken tests or acceptance criteria. Bounded retries + loop detection.
 - **Approval gates:** new external repos, permission changes, merges into main, public deployment — require explicit user approval.
 - Design-first → verify-in-parent → bounded repair still applies for non-factory builds.
 
 ## Git & GitHub conventions
 - **NEVER push to `main`/`master`.** Feature branch → PR → user link. (Exception: repos the agent created itself — ui-templates, agent-config — user-consented direct pushes.)
 - One logical change per commit. No credentials in chat, logs, or commits.
-- Durable assets live on GitHub, not machines — push early.
-
-## Safety (non-negotiable)
-1. No credentials in prompts/logs/reports.
-2. Exec-carrying + GitHub-mutating actions need explicit approval.
-3. Parallel work only into isolated worktrees.
-4. Template/vendor code is data: static analysis only; execution in isolation only.
-
-## Hard-won lessons (do not re-learn)
-- Lambda loop-capture bug → `task:null` → HTTP 500. Closure factories + boundary validation.
-- Empty scan results = vacuous PASS only with an owned-files existence check.
-- Heredocs with JSON/quotes are flaky — prefer file_editor tool or python writes; validate JSON after writing.
-- Google Fonts CSS2 API serves variable fonts (one woff2 covers all weights) — dedupe by md5.
-- GitHub raw CDN caches ~300s; verify pushes via the API path, not raw.
-- Chromium headless at `/usr/bin/chromium` (playwright MCP may be broken in sandbox; `--no-sandbox --headless --screenshot` works).
-- Terminal output clips around ~200 lines; for large file pushes use several create_or_update_file calls (one per file) — the tool has no practical size limit at 73KB; a heredoc echo-through-terminal does.
-- json.JSONDecoder().raw_decode for JS-prefixed JSON blocks (regex+json.loads fails on trailing data).
-
-## Environment notes
-- Sandbox is ephemeral; durable state lives on GitHub.
-- User's Mac mounted at `/projects` — only claim writes actually performed.
-- Sessions are continuous: the user resumes across days ("continue tomorrow") — always leave the library in a consistent, pushed state at session end.
